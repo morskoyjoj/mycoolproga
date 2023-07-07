@@ -1,5 +1,4 @@
 import os
-
 from telebot.async_telebot import AsyncTeleBot
 from telebot.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from dotenv import load_dotenv, find_dotenv
@@ -7,17 +6,25 @@ load_dotenv(find_dotenv())
 token = os.getenv("token")
 bot = AsyncTeleBot(token, parse_mode="HTML")
 ########################################################################################################################
-list_buttons = ["/C", "/C#", "/D", "/D#", "/E", "/F", "/F#", "/G", "/G#", "/A", "/A#", "/B", "/Cm", "/C#m", "/Dm", "/D#m", "/Em", "/Fm", "/Gm", "/G#m", "/Am", "/A#m", "/Bm", "/stop"]
+list_buttons = ["/C", "/C#", "/D", "/D#", "/E", "/F", "/F#", "/G", "/G#", "/A", "/A#", "/B", "/Cm", "/C#m", "/Dm", "/D#m", "/Em", "/Fm", "/F#m", "/Gm", "/G#m", "/Am", "/A#m", "/Bm", "/stop"]
 list_buttons_hendler = list(list_buttons)
-
 for i in range(len(list_buttons_hendler)):
     list_buttons_hendler[i] = list_buttons_hendler[i].replace('/','')
-
 print(list_buttons_hendler)
+chords = []
 
-chords = [""]
+@bot.message_handler(commands=["help"])
+async def send_welcome(message):
+    print(message.text)
+    chat_id = message.from_user.id
+    list_buttons = "/start", "/help", "/about", "/harmony"
+    await bot.send_message(chat_id, "Чтобы начать, введите /harmony")
+    await bot.send_message(chat_id, "Выберите аккорды, нажав на одноименные кнопки")
+    await bot.send_photo(chat_id, open("help1.jpeg", "rb"))
+    await bot.send_message(chat_id, "Продолжите выбор аккордов или начните заново, введя /harmony")
+    await bot.send_photo(chat_id, open("help2.jpeg", "rb"))
 
-@bot.message_handler(commands=["help", "start"])
+@bot.message_handler(commands=["start"])
 async def send_welcome(message):
     print(message.text)
     chat_id = message.from_user.id
@@ -25,22 +32,18 @@ async def send_welcome(message):
     await bot.send_message(chat_id, "Выберите вариант: /help - Инструкция, /about - Об авторе, /harmony - Запуск программы", reply_markup=generate_reply_keyboard(list_buttons, 2))
 
 
-
-
-
 def generate_reply_keyboard(list_buttons, row):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add(*list_buttons, row_width=row)
     return markup
-
 @bot.message_handler(commands=["knopki"])
 async def send_welcome(message):
     chat_id = message.from_user.id
 
-
 @bot.message_handler(commands=["harmony"])
 async def send_welcome(message):
     chat_id = message.from_user.id
+    chords.clear()
     await bot.send_message(chat_id, "Выберите аккорд", reply_markup=generate_reply_keyboard(list_buttons, 5))
 
 @bot.message_handler(commands=list_buttons_hendler)
@@ -63,7 +66,7 @@ async def send_welcome(message):
     elif message.text == "/F":
         print('Выберите аккорд')
         chords.append("F")
-    elif message.text == "F#":
+    elif message.text == "/F#":
         print('Выберите аккорд')
         chords.append("F#")
     elif message.text == "/G":
@@ -81,25 +84,65 @@ async def send_welcome(message):
     elif message.text == "/B":
         print('Выберите аккорд')
         chords.append("B")
+    elif message.text == "/Cm":
+        print('Выберите аккорд')
+        chords.append("Cm")
+    elif message.text == "/C#m":
+        print('Выберите аккорд')
+        chords.append("C#m")
+    elif message.text == "/Dm":
+        print('Выберите аккорд')
+        chords.append("Dm")
+    elif message.text == "/D#m":
+        print('Выберите аккорд')
+        chords.append("D#m")
+    elif message.text == "/Em":
+        print('Выберите аккорд')
+        chords.append("Em")
+    elif message.text == "/Fm":
+        print('Выберите аккорд')
+        chords.append("Fm")
+    elif message.text == "/F#m":
+        print('Выберите аккорд')
+        chords.append("F#m")
+    elif message.text == "/Gm":
+        print('Выберите аккорд')
+        chords.append("Gm")
+    elif message.text == "/G#m":
+        print('Выберите аккорд')
+        chords.append("G#m")
+    elif message.text == "/Am":
+        print('Выберите аккорд')
+        chords.append("Am")
+    elif message.text == "/A#m":
+        print('Выберите аккорд')
+        chords.append("A#m")
+    elif message.text == "/Bm":
+        print('Выберите аккорд')
+        chords.append("Bm")
     elif message.text == "/stop":
         chat_id = message.from_user.id
         await bot.send_message(chat_id, chords)
+        print(chords)
+        for a in chords:
+            if a in ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"):
+                await bot.send_document(chat_id, open(a+".mp3","rb"))
+        await bot.send_message(chat_id,
+                               "Выберите аккорд, чтобы продолжить или введите /harmony , чтобы начать сначала",
+                               reply_markup=generate_reply_keyboard(list_buttons, 5))
+
 
 @bot.message_handler(commands=["chords"])
 async def send_welcome(message):
     chat_id = message.from_user.id
     await bot.send_message(chat_id, chords)
-
 @bot.message_handler(commands=["about"])
 async def send_welcome(message):
     chat_id = message.from_user.id
     await bot.send_message(chat_id, '<a href= "tg://user?id=1441797781">eto ya</a>')
     await bot.send_message(chat_id, '<a href= "https://github.com/morskoyjoj">github</a>')
-
     await bot.send_message(chat_id, '<a href="https://rb.gy/06z43">полезноео видево</a>', disable_web_page_preview=True)
-
 
 ########################################################################################################################
 import asyncio
-
 asyncio.run(bot.polling())
